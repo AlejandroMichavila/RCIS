@@ -76,11 +76,21 @@
             border-radius: 5px;
             cursor: pointer;
             font-size: 16px;
-            margin-top: 15px;
+            margin: 15px 10px 0 0;
+            text-decoration: none;
+            display: inline-block;
         }
         
         .btn:hover {
             background-color: #45a049;
+        }
+        
+        .btn-download {
+            background-color: #2196F3;
+        }
+        
+        .btn-download:hover {
+            background-color: #1976D2;
         }
         
         .result-container {
@@ -98,6 +108,14 @@
         .sheet-info h3 {
             margin: 0 0 10px 0;
             color: #2196F3;
+        }
+        
+        .download-section {
+            background-color: #f0f8ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
         }
         
         .content-area {
@@ -206,6 +224,12 @@
                 <div id="sheetInfo"></div>
             </div>
             
+            <div class="download-section" id="downloadSection" style="display: none;">
+                <h3>📥 Descargar Datos</h3>
+                <p>Descarga los datos filtrados como un archivo Excel</p>
+                <button class="btn btn-download" id="downloadBtn">⬇️ Descargar XLSX</button>
+            </div>
+            
             <div class="content-area">
                 <div id="contentDisplay"></div>
             </div>
@@ -220,6 +244,12 @@
         const resultContainer = document.getElementById('resultContainer');
         const sheetInfo = document.getElementById('sheetInfo');
         const contentDisplay = document.getElementById('contentDisplay');
+        const downloadSection = document.getElementById('downloadSection');
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        // Variable global para almacenar los datos filtrados
+        let filteredData = null;
+        let originalFileName = '';
 
         // Eventos para drag and drop
         uploadArea.addEventListener('dragover', (e) => {
@@ -251,6 +281,13 @@
             }
         });
 
+        // Evento para el botón de descarga
+        downloadBtn.addEventListener('click', () => {
+            if (filteredData) {
+                downloadExcel();
+            }
+        });
+
         function showError(message) {
             errorContainer.innerHTML = `<div class="error">${message}</div>`;
             loading.style.display = 'none';
@@ -261,6 +298,37 @@
             errorContainer.innerHTML = '';
         }
 
+        function downloadExcel() {
+            if (!filteredData) {
+                alert('No hay datos para descargar');
+                return;
+            }
+
+            try {
+                // Crear un nuevo libro de trabajo
+                const wb = XLSX.utils.book_new();
+                
+                // Convertir los datos filtrados a una hoja
+                const ws = XLSX.utils.aoa_to_sheet(filteredData);
+                
+                // Agregar la hoja al libro
+                XLSX.utils.book_append_sheet(wb, ws, 'Datos Filtrados');
+                
+                // Generar el nombre del archivo
+                const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+                const baseFileName = originalFileName.replace(/\.[^/.]+$/, '') || 'datos_filtrados';
+                const fileName = `${baseFileName}_filtrado_${timestamp}.xlsx`;
+                
+                // Descargar el archivo
+                XLSX.writeFile(wb, fileName);
+                
+                console.log('Archivo descargado:', fileName);
+            } catch (error) {
+                alert('Error al generar el archivo de descarga: ' + error.message);
+                console.error('Error en downloadExcel:', error);
+            }
+        }
+
         function handleFile(file) {
             // Validar tipo de archivo
             if (!file.name.toLowerCase().endsWith('.xlsx')) {
@@ -268,9 +336,13 @@
                 return;
             }
 
+            // Guardar el nombre del archivo original
+            originalFileName = file.name;
+
             clearError();
             loading.style.display = 'block';
             resultContainer.style.display = 'none';
+            downloadSection.style.display = 'none';
 
             const reader = new FileReader();
             
@@ -287,29 +359,131 @@
                         return;
                     }
                     
-                    // Obtener la última hoja
-                    const lastSheetName = sheetNames[sheetNames.length - 1];
-                    const lastSheet = workbook.Sheets[lastSheetName];
+                    // Buscar la hoja "RV EG23"
+                    const targetSheetName = "RV EG23";
                     
-                    // Convertir a HTML tabla
-                    const sheetHTML = XLSX.utils.sheet_to_html(lastSheet);
+                    if (!sheetNames.includes(targetSheetName)) {
+                        showError(`La hoja "${targetSheetName}" no se encontró en el archivo. Hojas disponibles: ${sheetNames.join(', ')}`);
+                        return;
+                    }
+                    
+                    // Obtener la hoja específica
+                    const targetSheet = workbook.Sheets[targetSheetName];
+                    
+                    // Convertir hoja a JSON para poder buscar contenido
+                    const sheetData = XLSX.utils.sheet_to_json(targetSheet, { header: 1, defval: '' });
+                    
+                    // Buscar las filas que contienen los textos específicos
+                    let startRowRef = -1;
+                    let endRowRef = -1;
+                    
+                    for (let i = 0; i < sheetData.length; i++) {
+                        const row = sheetData[i];
+                        
+                        // Buscar "Pregunta 14R" en cualquier columna
+                        if (startRowRef === -1) {
+                            for (let j = 0; j < row.length; j++) {
+                                if (row[j] && row[j].toString().includes("Pregunta 14R")) {
+                                    startRowRef = i;
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        // Buscar el texto final en cualquier columna
+                        if (startRowRef !== -1 && endRowRef === -1) {
+                            for (let j = 0; j < row.length; j++) {
+                                if (row[j] && row[j].toString().includes("SOLO A QUIENES VOTARÍAN A ALGÚN PARTIDO EN LAS PRÓXIMAS ELECCIONES GENERALES")) {
+                                    endRowRef = i;
+                                    break;
+                                }
+                            }
+                        }
+                    }
                     
                     // Mostrar información
-                    sheetInfo.innerHTML = `
-                        <strong>Nombre de la hoja:</strong> ${lastSheetName}<br>
-                        <strong>Posición:</strong> ${sheetNames.length} de ${sheetNames.length}<br>
+                    const sheetPosition = sheetNames.indexOf(targetSheetName) + 1;
+                    let infoHTML = `
+                        <strong>Nombre de la hoja:</strong> ${targetSheetName}<br>
+                        <strong>Posición:</strong> ${sheetPosition} de ${sheetNames.length}<br>
                         <strong>Total de hojas en el archivo:</strong> ${sheetNames.length}<br>
-                        <strong>Todas las hojas:</strong> ${sheetNames.join(', ')}
+                        <strong>Todas las hojas:</strong> ${sheetNames.join(', ')}<br>
                     `;
                     
-                    // Mostrar contenido en formato tabla
-                    if (sheetHTML && sheetHTML.trim() !== '<table></table>') {
-                        // Reemplazar la tabla básica con una con estilos
-                        const styledHTML = sheetHTML.replace('<table>', '<table class="excel-table">');
-                        contentDisplay.innerHTML = styledHTML;
+                    if (startRowRef !== -1 && endRowRef !== -1) {
+                        // Calcular las filas reales a mostrar
+                        const actualStartRow = startRowRef + 3; // 3 filas debajo de "Pregunta 14R"
+                        const actualEndRow = endRowRef - 2;    // 2 filas antes del texto final
+                        
+                        if (actualStartRow <= actualEndRow && actualStartRow >= 0 && actualEndRow < sheetData.length) {
+                            infoHTML += `<strong>Filas de referencia:</strong><br>`;
+                            infoHTML += `&nbsp;&nbsp;- "Pregunta 14R" encontrada en fila ${startRowRef + 1}<br>`;
+                            infoHTML += `&nbsp;&nbsp;- "SOLO A QUIENES VOTARÍAN..." encontrada en fila ${endRowRef + 1}<br>`;
+                            infoHTML += `<strong>Filas mostradas:</strong> ${actualStartRow + 1} a ${actualEndRow + 1} (${actualEndRow - actualStartRow + 1} filas)`;
+                            
+                            // Filtrar solo las filas entre actualStartRow y actualEndRow
+                            filteredData = sheetData.slice(actualStartRow, actualEndRow + 1);
+                            
+                            // Crear una nueva hoja con solo los datos filtrados
+                            const newSheet = XLSX.utils.aoa_to_sheet(filteredData);
+                            const sheetHTML = XLSX.utils.sheet_to_html(newSheet);
+                            
+                            if (sheetHTML && sheetHTML.trim() !== '<table></table>') {
+                                const styledHTML = sheetHTML.replace('<table>', '<table class="excel-table">');
+                                contentDisplay.innerHTML = styledHTML;
+                                
+                                // Mostrar la sección de descarga
+                                downloadSection.style.display = 'block';
+                            } else {
+                                contentDisplay.innerHTML = '<p style="color: #666; font-style: italic;">No se encontró contenido en el rango especificado</p>';
+                                filteredData = null;
+                            }
+                        } else {
+                            infoHTML += '<br><strong style="color: #c62828;">⚠️ El rango calculado no es válido</strong><br>';
+                            infoHTML += `&nbsp;&nbsp;- Fila inicio calculada: ${actualStartRow + 1}<br>`;
+                            infoHTML += `&nbsp;&nbsp;- Fila fin calculada: ${actualEndRow + 1}<br>`;
+                            infoHTML += `&nbsp;&nbsp;- Total filas en hoja: ${sheetData.length}`;
+                            
+                            contentDisplay.innerHTML = '<p style="color: #666; font-style: italic;">El rango calculado no es válido. Mostrando toda la hoja.</p>';
+                            
+                            // Mostrar toda la hoja si el rango no es válido
+                            const sheetHTML = XLSX.utils.sheet_to_html(targetSheet);
+                            if (sheetHTML && sheetHTML.trim() !== '<table></table>') {
+                                const styledHTML = sheetHTML.replace('<table>', '<table class="excel-table">');
+                                contentDisplay.innerHTML += styledHTML;
+                                
+                                // Usar todos los datos de la hoja para descarga
+                                filteredData = sheetData;
+                                downloadSection.style.display = 'block';
+                            } else {
+                                filteredData = null;
+                            }
+                        }
                     } else {
-                        contentDisplay.innerHTML = '<p style="color: #666; font-style: italic;">La hoja está vacía</p>';
+                        if (startRowRef === -1) {
+                            infoHTML += '<br><strong style="color: #c62828;">⚠️ No se encontró "Pregunta 14R"</strong>';
+                        }
+                        if (endRowRef === -1) {
+                            infoHTML += '<br><strong style="color: #c62828;">⚠️ No se encontró "SOLO A QUIENES VOTARÍAN A ALGÚN PARTIDO EN LAS PRÓXIMAS ELECCIONES GENERALES"</strong>';
+                        }
+                        
+                        contentDisplay.innerHTML = '<p style="color: #666; font-style: italic;">No se pudieron encontrar las filas de referencia. Mostrando toda la hoja.</p>';
+                        
+                        // Mostrar toda la hoja si no se encuentran los marcadores
+                        const sheetHTML = XLSX.utils.sheet_to_html(targetSheet);
+                        if (sheetHTML && sheetHTML.trim() !== '<table></table>') {
+                            const styledHTML = sheetHTML.replace('<table>', '<table class="excel-table">');
+                            contentDisplay.innerHTML += styledHTML;
+                            
+                            // Usar todos los datos de la hoja para descarga
+                            filteredData = sheetData;
+                            downloadSection.style.display = 'block';
+                        } else {
+                            filteredData = null;
+                        }
                     }
+                    
+                    sheetInfo.innerHTML = infoHTML;
                     
                     // Mostrar resultado
                     loading.style.display = 'none';
