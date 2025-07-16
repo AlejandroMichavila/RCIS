@@ -1,1 +1,331 @@
-<h1>Hola Mundo</h1>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RCIS</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .upload-area {
+            border: 2px dashed #4CAF50;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .upload-area:hover {
+            background-color: #f9f9f9;
+            border-color: #45a049;
+        }
+        
+        .upload-area.dragover {
+            background-color: #e8f5e8;
+            border-color: #45a049;
+        }
+        
+        #fileInput {
+            display: none;
+        }
+        
+        .upload-icon {
+            font-size: 48px;
+            color: #4CAF50;
+            margin-bottom: 20px;
+        }
+        
+        .upload-text {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .upload-subtext {
+            font-size: 14px;
+            color: #999;
+        }
+        
+        .btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 15px;
+        }
+        
+        .btn:hover {
+            background-color: #45a049;
+        }
+        
+        .result-container {
+            margin-top: 30px;
+            display: none;
+        }
+        
+        .sheet-info {
+            background-color: #e8f4f8;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .sheet-info h3 {
+            margin: 0 0 10px 0;
+            color: #2196F3;
+        }
+        
+        .content-area {
+            background-color: #fafafa;
+            padding: 20px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            max-height: 500px;
+            overflow: auto;
+        }
+        
+        .excel-table {
+            border-collapse: collapse;
+            width: 100%;
+            font-size: 12px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .excel-table th,
+        .excel-table td {
+            border: 1px solid #ccc;
+            padding: 6px 8px;
+            text-align: left;
+            vertical-align: top;
+            min-width: 60px;
+            max-width: 200px;
+            word-wrap: break-word;
+        }
+        
+        .excel-table th {
+            background-color: #f0f0f0;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .excel-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .excel-table tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .content-area pre {
+            margin: 0;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.4;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        .error {
+            background-color: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+        
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #4CAF50;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 RCIS</h1>
+        
+        <div class="upload-area" id="uploadArea">
+            <div class="upload-icon">📁</div>
+            <div class="upload-text">Arrastra tu archivo XLSX aquí o haz clic para seleccionar</div>
+            <div class="upload-subtext">Solo archivos .xlsx permitidos</div>
+        </div>
+        
+        <input type="file" id="fileInput" accept=".xlsx" />
+        
+        <div id="loading" class="loading" style="display: none;">
+            Procesando archivo...
+        </div>
+        
+        <div id="errorContainer"></div>
+        
+        <div id="resultContainer" class="result-container">
+            <div class="sheet-info">
+                <h3>Información Obtenida:</h3>
+                <div id="sheetInfo"></div>
+            </div>
+            
+            <div class="content-area">
+                <div id="contentDisplay"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const uploadArea = document.getElementById('uploadArea');
+        const loading = document.getElementById('loading');
+        const errorContainer = document.getElementById('errorContainer');
+        const resultContainer = document.getElementById('resultContainer');
+        const sheetInfo = document.getElementById('sheetInfo');
+        const contentDisplay = document.getElementById('contentDisplay');
+
+        // Eventos para drag and drop
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        uploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        function showError(message) {
+            errorContainer.innerHTML = `<div class="error">${message}</div>`;
+            loading.style.display = 'none';
+            resultContainer.style.display = 'none';
+        }
+
+        function clearError() {
+            errorContainer.innerHTML = '';
+        }
+
+        function handleFile(file) {
+            // Validar tipo de archivo
+            if (!file.name.toLowerCase().endsWith('.xlsx')) {
+                showError('Por favor selecciona un archivo .xlsx válido');
+                return;
+            }
+
+            clearError();
+            loading.style.display = 'block';
+            resultContainer.style.display = 'none';
+
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    
+                    // Obtener todas las hojas
+                    const sheetNames = workbook.SheetNames;
+                    
+                    if (sheetNames.length === 0) {
+                        showError('El archivo no contiene hojas de cálculo');
+                        return;
+                    }
+                    
+                    // Obtener la última hoja
+                    const lastSheetName = sheetNames[sheetNames.length - 1];
+                    const lastSheet = workbook.Sheets[lastSheetName];
+                    
+                    // Convertir a HTML tabla
+                    const sheetHTML = XLSX.utils.sheet_to_html(lastSheet);
+                    
+                    // Mostrar información
+                    sheetInfo.innerHTML = `
+                        <strong>Nombre de la hoja:</strong> ${lastSheetName}<br>
+                        <strong>Posición:</strong> ${sheetNames.length} de ${sheetNames.length}<br>
+                        <strong>Total de hojas en el archivo:</strong> ${sheetNames.length}<br>
+                        <strong>Todas las hojas:</strong> ${sheetNames.join(', ')}
+                    `;
+                    
+                    // Mostrar contenido en formato tabla
+                    if (sheetHTML && sheetHTML.trim() !== '<table></table>') {
+                        // Reemplazar la tabla básica con una con estilos
+                        const styledHTML = sheetHTML.replace('<table>', '<table class="excel-table">');
+                        contentDisplay.innerHTML = styledHTML;
+                    } else {
+                        contentDisplay.innerHTML = '<p style="color: #666; font-style: italic;">La hoja está vacía</p>';
+                    }
+                    
+                    // Mostrar resultado
+                    loading.style.display = 'none';
+                    resultContainer.style.display = 'block';
+                    
+                } catch (error) {
+                    showError('Error al procesar el archivo: ' + error.message);
+                }
+            };
+            
+            reader.onerror = function() {
+                showError('Error al leer el archivo');
+            };
+            
+            reader.readAsArrayBuffer(file);
+        }
+    </script>
+</body>
+</html>
