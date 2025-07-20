@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,20 +14,20 @@
             padding: 20px;
             background-color: #f5f5f5;
         }
-        
+
         .container {
             background: white;
             padding: 30px;
             border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
-        
+
         h1 {
             color: #333;
             text-align: center;
             margin-bottom: 30px;
         }
-        
+
         .upload-area {
             border: 2px dashed #4CAF50;
             border-radius: 10px;
@@ -36,38 +37,38 @@
             transition: all 0.3s ease;
             cursor: pointer;
         }
-        
+
         .upload-area:hover {
             background-color: #f9f9f9;
             border-color: #45a049;
         }
-        
+
         .upload-area.dragover {
             background-color: #e8f5e8;
             border-color: #45a049;
         }
-        
+
         #fileInput {
             display: none;
         }
-        
+
         .upload-icon {
             font-size: 48px;
             color: #4CAF50;
             margin-bottom: 20px;
         }
-        
+
         .upload-text {
             font-size: 18px;
             color: #666;
             margin-bottom: 10px;
         }
-        
+
         .upload-subtext {
             font-size: 14px;
             color: #999;
         }
-        
+
         .btn {
             background-color: #4CAF50;
             color: white;
@@ -80,36 +81,36 @@
             text-decoration: none;
             display: inline-block;
         }
-        
+
         .btn:hover {
             background-color: #45a049;
         }
-        
+
         .btn-download {
             background-color: #2196F3;
         }
-        
+
         .btn-download:hover {
             background-color: #1976D2;
         }
-        
+
         .result-container {
             margin-top: 30px;
             display: none;
         }
-        
+
         .sheet-info {
             background-color: #e8f4f8;
             padding: 15px;
             border-radius: 5px;
             margin-bottom: 20px;
         }
-        
+
         .sheet-info h3 {
             margin: 0 0 10px 0;
             color: #2196F3;
         }
-        
+
         .download-section {
             background-color: #f0f8ff;
             padding: 15px;
@@ -117,7 +118,7 @@
             margin-bottom: 20px;
             text-align: center;
         }
-        
+
         .content-area {
             background-color: #fafafa;
             padding: 20px;
@@ -126,14 +127,14 @@
             max-height: 500px;
             overflow: auto;
         }
-        
+
         .excel-table {
             border-collapse: collapse;
             width: 100%;
             font-size: 12px;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        
+
         .excel-table th,
         .excel-table td {
             border: 1px solid #ccc;
@@ -144,21 +145,21 @@
             max-width: 200px;
             word-wrap: break-word;
         }
-        
+
         .excel-table th {
             background-color: #f0f0f0;
             font-weight: bold;
             text-align: center;
         }
-        
+
         .excel-table tr:nth-child(even) {
             background-color: #f9f9f9;
         }
-        
+
         .excel-table tr:hover {
             background-color: #f5f5f5;
         }
-        
+
         .content-area pre {
             margin: 0;
             font-family: 'Courier New', monospace;
@@ -167,7 +168,7 @@
             white-space: pre-wrap;
             word-wrap: break-word;
         }
-        
+
         .error {
             background-color: #ffebee;
             color: #c62828;
@@ -175,13 +176,13 @@
             border-radius: 5px;
             margin-top: 20px;
         }
-        
+
         .loading {
             text-align: center;
             padding: 20px;
             color: #666;
         }
-        
+
         .loading::after {
             content: '';
             display: inline-block;
@@ -193,43 +194,49 @@
             animation: spin 1s linear infinite;
             margin-left: 10px;
         }
-        
+
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h1>📊 RCIS</h1>
-        
+
         <div class="upload-area" id="uploadArea">
             <div class="upload-icon">📁</div>
             <div class="upload-text">Arrastra tu archivo XLSX aquí o haz clic para seleccionar</div>
             <div class="upload-subtext">Solo archivos .xlsx permitidos</div>
         </div>
-        
+
         <input type="file" id="fileInput" accept=".xlsx" />
-        
+
         <div id="loading" class="loading" style="display: none;">
             Procesando archivo...
         </div>
-        
+
         <div id="errorContainer"></div>
-        
+
         <div id="resultContainer" class="result-container">
             <div class="sheet-info">
                 <h3>Información Obtenida:</h3>
                 <div id="sheetInfo"></div>
             </div>
-            
+
             <div class="download-section" id="downloadSection" style="display: none;">
                 <h3>📥 Descargar Datos</h3>
                 <p>Descarga los datos filtrados como un archivo Excel</p>
                 <button class="btn btn-download" id="downloadBtn">⬇️ Descargar XLSX</button>
             </div>
-            
+
             <div class="content-area">
                 <div id="contentDisplay"></div>
             </div>
@@ -237,269 +244,541 @@
     </div>
 
     <script>
-        const fileInput = document.getElementById('fileInput');
-        const uploadArea = document.getElementById('uploadArea');
-        const loading = document.getElementById('loading');
-        const errorContainer = document.getElementById('errorContainer');
-        const resultContainer = document.getElementById('resultContainer');
-        const sheetInfo = document.getElementById('sheetInfo');
-        const contentDisplay = document.getElementById('contentDisplay');
-        const downloadSection = document.getElementById('downloadSection');
-        const downloadBtn = document.getElementById('downloadBtn');
+        // ============================================================================
+        // RCIS - Sistema de Procesamiento de Datos Electorales
+        // Versión optimizada con mejores prácticas de JavaScript
+        // ============================================================================
 
-        // Variable global para almacenar los datos filtrados
-        let filteredData = null;
-        let originalFileName = '';
-
-        // Eventos para drag and drop
-        uploadArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadArea.classList.add('dragover');
-        });
-
-        uploadArea.addEventListener('dragleave', () => {
-            uploadArea.classList.remove('dragover');
-        });
-
-        uploadArea.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadArea.classList.remove('dragover');
-            
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                handleFile(files[0]);
-            }
-        });
-
-        uploadArea.addEventListener('click', () => {
-            fileInput.click();
-        });
-
-        fileInput.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                handleFile(e.target.files[0]);
-            }
-        });
-
-        // Evento para el botón de descarga
-        downloadBtn.addEventListener('click', () => {
-            if (filteredData) {
-                downloadExcel();
-            }
-        });
-
-        function showError(message) {
-            errorContainer.innerHTML = `<div class="error">${message}</div>`;
-            loading.style.display = 'none';
-            resultContainer.style.display = 'none';
-        }
-
-        function clearError() {
-            errorContainer.innerHTML = '';
-        }
-
-        function downloadExcel() {
-            if (!filteredData) {
-                alert('No hay datos para descargar');
-                return;
+        class RCISProcessor {
+            constructor() {
+                this.initializeElements();
+                this.initializeData();
+                this.setupEventListeners();
+                this.setupConfiguration();
             }
 
-            try {
-                // Crear un nuevo libro de trabajo
-                const wb = XLSX.utils.book_new();
-                
-                // Convertir los datos filtrados a una hoja
-                const ws = XLSX.utils.aoa_to_sheet(filteredData);
-                
-                // Agregar la hoja al libro
-                XLSX.utils.book_append_sheet(wb, ws, 'Datos Filtrados');
-                
-                // Generar el nombre del archivo
-                const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
-                const baseFileName = originalFileName.replace(/\.[^/.]+$/, '') || 'datos_filtrados';
-                const fileName = `${baseFileName}_filtrado_${timestamp}.xlsx`;
-                
-                // Descargar el archivo
-                XLSX.writeFile(wb, fileName);
-                
-                console.log('Archivo descargado:', fileName);
-            } catch (error) {
-                alert('Error al generar el archivo de descarga: ' + error.message);
-                console.error('Error en downloadExcel:', error);
-            }
-        }
+            // ========================================
+            // CONFIGURACIÓN E INICIALIZACIÓN
+            // ========================================
 
-        function handleFile(file) {
-            // Validar tipo de archivo
-            if (!file.name.toLowerCase().endsWith('.xlsx')) {
-                showError('Por favor selecciona un archivo .xlsx válido');
-                return;
+            initializeElements() {
+                this.elements = {
+                    fileInput: document.getElementById('fileInput'),
+                    uploadArea: document.getElementById('uploadArea'),
+                    loading: document.getElementById('loading'),
+                    errorContainer: document.getElementById('errorContainer'),
+                    resultContainer: document.getElementById('resultContainer'),
+                    sheetInfo: document.getElementById('sheetInfo'),
+                    contentDisplay: document.getElementById('contentDisplay'),
+                    downloadSection: document.getElementById('downloadSection'),
+                    downloadBtn: document.getElementById('downloadBtn')
+                };
             }
 
-            // Guardar el nombre del archivo original
-            originalFileName = file.name;
+            initializeData() {
+                this.filteredData = null;
+                this.originalFileName = '';
+                this.processedResult = null;
+            }
 
-            clearError();
-            loading.style.display = 'block';
-            resultContainer.style.display = 'none';
-            downloadSection.style.display = 'none';
-
-            const reader = new FileReader();
-            
-            reader.onload = function(e) {
-                try {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
-                    
-                    // Obtener todas las hojas
-                    const sheetNames = workbook.SheetNames;
-                    
-                    if (sheetNames.length === 0) {
-                        showError('El archivo no contiene hojas de cálculo');
-                        return;
+            setupConfiguration() {
+                this.config = {
+                    adjustmentArray: [
+                        8091840, 7760970, 3033744, 3014006, 462883, 392634, 333362, 275782,
+                        152327, 114718, 51764, 169237, 606450, 199392, 261078, 1000000,
+                        500000, 500000, 50000, 50000
+                    ],
+                    targetSheet: "RV EG23",
+                    markers: {
+                        start: "Pregunta 14R",
+                        end: "SOLO A QUIENES VOTARÍAN A ALGÚN PARTIDO EN LAS PRÓXIMAS ELECCIONES GENERALES"
+                    },
+                    rowOffsets: {
+                        startOffset: 3, // filas después del marcador inicio
+                        endOffset: 3    // filas antes del marcador final
                     }
-                    
-                    // Buscar la hoja "RV EG23"
-                    const targetSheetName = "RV EG23";
-                    
-                    if (!sheetNames.includes(targetSheetName)) {
-                        showError(`La hoja "${targetSheetName}" no se encontró en el archivo. Hojas disponibles: ${sheetNames.join(', ')}`);
-                        return;
-                    }
-                    
-                    // Obtener la hoja específica
-                    const targetSheet = workbook.Sheets[targetSheetName];
-                    
-                    // Convertir hoja a JSON para poder buscar contenido
-                    const sheetData = XLSX.utils.sheet_to_json(targetSheet, { header: 1, defval: '' });
-                    
-                    // Buscar las filas que contienen los textos específicos
-                    let startRowRef = -1;
-                    let endRowRef = -1;
-                    
-                    for (let i = 0; i < sheetData.length; i++) {
-                        const row = sheetData[i];
-                        
-                        // Buscar "Pregunta 14R" en cualquier columna
-                        if (startRowRef === -1) {
-                            for (let j = 0; j < row.length; j++) {
-                                if (row[j] && row[j].toString().includes("Pregunta 14R")) {
-                                    startRowRef = i;
-                                    break;
-                                }
-                            }
-                        }
-                        
-                        // Buscar el texto final en cualquier columna
-                        if (startRowRef !== -1 && endRowRef === -1) {
-                            for (let j = 0; j < row.length; j++) {
-                                if (row[j] && row[j].toString().includes("SOLO A QUIENES VOTARÍAN A ALGÚN PARTIDO EN LAS PRÓXIMAS ELECCIONES GENERALES")) {
-                                    endRowRef = i;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    
-                    // Mostrar información
-                    const sheetPosition = sheetNames.indexOf(targetSheetName) + 1;
-                    let infoHTML = `
-                        <strong>Nombre de la hoja:</strong> ${targetSheetName}<br>
-                        <strong>Posición:</strong> ${sheetPosition} de ${sheetNames.length}<br>
-                        <strong>Total de hojas en el archivo:</strong> ${sheetNames.length}<br>
-                        <strong>Todas las hojas:</strong> ${sheetNames.join(', ')}<br>
-                    `;
-                    
-                    if (startRowRef !== -1 && endRowRef !== -1) {
-                        // Calcular las filas reales a mostrar
-                        const actualStartRow = startRowRef + 3; // 3 filas debajo de "Pregunta 14R"
-                        const actualEndRow = endRowRef - 2;    // 2 filas antes del texto final
-                        
-                        if (actualStartRow <= actualEndRow && actualStartRow >= 0 && actualEndRow < sheetData.length) {
-                            infoHTML += `<strong>Filas de referencia:</strong><br>`;
-                            infoHTML += `&nbsp;&nbsp;- "Pregunta 14R" encontrada en fila ${startRowRef + 1}<br>`;
-                            infoHTML += `&nbsp;&nbsp;- "SOLO A QUIENES VOTARÍAN..." encontrada en fila ${endRowRef + 1}<br>`;
-                            infoHTML += `<strong>Filas mostradas:</strong> ${actualStartRow + 1} a ${actualEndRow + 1} (${actualEndRow - actualStartRow + 1} filas)`;
-                            
-                            // Filtrar solo las filas entre actualStartRow y actualEndRow
-                            filteredData = sheetData.slice(actualStartRow, actualEndRow + 1);
-                            
-                            // Crear una nueva hoja con solo los datos filtrados
-                            const newSheet = XLSX.utils.aoa_to_sheet(filteredData);
-                            const sheetHTML = XLSX.utils.sheet_to_html(newSheet);
-                            
-                            if (sheetHTML && sheetHTML.trim() !== '<table></table>') {
-                                const styledHTML = sheetHTML.replace('<table>', '<table class="excel-table">');
-                                contentDisplay.innerHTML = styledHTML;
-                                
-                                // Mostrar la sección de descarga
-                                downloadSection.style.display = 'block';
-                            } else {
-                                contentDisplay.innerHTML = '<p style="color: #666; font-style: italic;">No se encontró contenido en el rango especificado</p>';
-                                filteredData = null;
-                            }
-                        } else {
-                            infoHTML += '<br><strong style="color: #c62828;">⚠️ El rango calculado no es válido</strong><br>';
-                            infoHTML += `&nbsp;&nbsp;- Fila inicio calculada: ${actualStartRow + 1}<br>`;
-                            infoHTML += `&nbsp;&nbsp;- Fila fin calculada: ${actualEndRow + 1}<br>`;
-                            infoHTML += `&nbsp;&nbsp;- Total filas en hoja: ${sheetData.length}`;
-                            
-                            contentDisplay.innerHTML = '<p style="color: #666; font-style: italic;">El rango calculado no es válido. Mostrando toda la hoja.</p>';
-                            
-                            // Mostrar toda la hoja si el rango no es válido
-                            const sheetHTML = XLSX.utils.sheet_to_html(targetSheet);
-                            if (sheetHTML && sheetHTML.trim() !== '<table></table>') {
-                                const styledHTML = sheetHTML.replace('<table>', '<table class="excel-table">');
-                                contentDisplay.innerHTML += styledHTML;
-                                
-                                // Usar todos los datos de la hoja para descarga
-                                filteredData = sheetData;
-                                downloadSection.style.display = 'block';
-                            } else {
-                                filteredData = null;
-                            }
-                        }
-                    } else {
-                        if (startRowRef === -1) {
-                            infoHTML += '<br><strong style="color: #c62828;">⚠️ No se encontró "Pregunta 14R"</strong>';
-                        }
-                        if (endRowRef === -1) {
-                            infoHTML += '<br><strong style="color: #c62828;">⚠️ No se encontró "SOLO A QUIENES VOTARÍAN A ALGÚN PARTIDO EN LAS PRÓXIMAS ELECCIONES GENERALES"</strong>';
-                        }
-                        
-                        contentDisplay.innerHTML = '<p style="color: #666; font-style: italic;">No se pudieron encontrar las filas de referencia. Mostrando toda la hoja.</p>';
-                        
-                        // Mostrar toda la hoja si no se encuentran los marcadores
-                        const sheetHTML = XLSX.utils.sheet_to_html(targetSheet);
-                        if (sheetHTML && sheetHTML.trim() !== '<table></table>') {
-                            const styledHTML = sheetHTML.replace('<table>', '<table class="excel-table">');
-                            contentDisplay.innerHTML += styledHTML;
-                            
-                            // Usar todos los datos de la hoja para descarga
-                            filteredData = sheetData;
-                            downloadSection.style.display = 'block';
-                        } else {
-                            filteredData = null;
-                        }
-                    }
-                    
-                    sheetInfo.innerHTML = infoHTML;
-                    
-                    // Mostrar resultado
-                    loading.style.display = 'none';
-                    resultContainer.style.display = 'block';
-                    
-                } catch (error) {
-                    showError('Error al procesar el archivo: ' + error.message);
+                };
+            }
+
+            setupEventListeners() {
+                // Drag and Drop
+                this.elements.uploadArea.addEventListener('dragover', this.handleDragOver.bind(this));
+                this.elements.uploadArea.addEventListener('dragleave', this.handleDragLeave.bind(this));
+                this.elements.uploadArea.addEventListener('drop', this.handleDrop.bind(this));
+                this.elements.uploadArea.addEventListener('click', () => this.elements.fileInput.click());
+
+                // File input
+                this.elements.fileInput.addEventListener('change', this.handleFileInputChange.bind(this));
+
+                // Download button
+                this.elements.downloadBtn.addEventListener('click', this.downloadExcel.bind(this));
+            }
+
+            // ========================================
+            // MANEJO DE EVENTOS
+            // ========================================
+
+            handleDragOver(e) {
+                e.preventDefault();
+                this.elements.uploadArea.classList.add('dragover');
+            }
+
+            handleDragLeave() {
+                this.elements.uploadArea.classList.remove('dragover');
+            }
+
+            handleDrop(e) {
+                e.preventDefault();
+                this.elements.uploadArea.classList.remove('dragover');
+
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    this.handleFile(files[0]);
                 }
-            };
-            
-            reader.onerror = function() {
-                showError('Error al leer el archivo');
-            };
-            
-            reader.readAsArrayBuffer(file);
+            }
+
+            handleFileInputChange(e) {
+                if (e.target.files.length > 0) {
+                    this.handleFile(e.target.files[0]);
+                }
+            }
+
+            // ========================================
+            // MANEJO DE ARCHIVOS Y VALIDACIÓN
+            // ========================================
+
+            handleFile(file) {
+                if (!this.validateFile(file)) return;
+
+                this.originalFileName = file.name;
+                this.showLoading();
+                this.processFileAsync(file);
+            }
+
+            validateFile(file) {
+                if (!file.name.toLowerCase().endsWith('.xlsx')) {
+                    this.showError('Por favor selecciona un archivo .xlsx válido');
+                    return false;
+                }
+                return true;
+            }
+
+            async processFileAsync(file) {
+                try {
+                    const arrayBuffer = await this.readFileAsArrayBuffer(file);
+                    const workbook = XLSX.read(new Uint8Array(arrayBuffer), { type: 'array' });
+
+                    const result = this.processWorkbook(workbook);
+                    this.displayResults(result);
+
+                } catch (error) {
+                    this.showError('Error al procesar el archivo: ' + error.message);
+                }
+            }
+
+            readFileAsArrayBuffer(file) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = e => resolve(e.target.result);
+                    reader.onerror = () => reject(new Error('Error al leer el archivo'));
+                    reader.readAsArrayBuffer(file);
+                });
+            }
+
+            // ========================================
+            // PROCESAMIENTO DE WORKBOOK
+            // ========================================
+
+            processWorkbook(workbook) {
+                const sheetNames = workbook.SheetNames;
+
+                if (sheetNames.length === 0) {
+                    throw new Error('El archivo no contiene hojas de cálculo');
+                }
+
+                if (!sheetNames.includes(this.config.targetSheet)) {
+                    throw new Error(`La hoja "${this.config.targetSheet}" no se encontró. Hojas disponibles: ${sheetNames.join(', ')}`);
+                }
+
+                const targetSheet = workbook.Sheets[this.config.targetSheet];
+                const sheetData = XLSX.utils.sheet_to_json(targetSheet, { header: 1, defval: '' });
+
+                const markers = this.findMarkers(sheetData);
+                const filteredData = this.extractDataRange(sheetData, markers);
+                const processedData = this.processDataComplete(filteredData);
+
+                return {
+                    sheetNames,
+                    sheetPosition: sheetNames.indexOf(this.config.targetSheet) + 1,
+                    markers,
+                    originalData: sheetData,
+                    filteredData,
+                    processedData,
+                    targetSheet
+                };
+            }
+
+            findMarkers(sheetData) {
+                let startRowRef = -1;
+                let endRowRef = -1;
+
+                for (let i = 0; i < sheetData.length; i++) {
+                    const row = sheetData[i];
+
+                    if (startRowRef === -1) {
+                        for (let j = 0; j < row.length; j++) {
+                            if (row[j]?.toString().includes(this.config.markers.start)) {
+                                startRowRef = i;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (startRowRef !== -1 && endRowRef === -1) {
+                        for (let j = 0; j < row.length; j++) {
+                            if (row[j]?.toString().includes(this.config.markers.end)) {
+                                endRowRef = i;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                return { startRowRef, endRowRef };
+            }
+
+            extractDataRange(sheetData, markers) {
+                const { startRowRef, endRowRef } = markers;
+
+                if (startRowRef === -1 || endRowRef === -1) {
+                    console.warn('Marcadores no encontrados, usando toda la hoja');
+                    return sheetData;
+                }
+
+                const actualStartRow = startRowRef + this.config.rowOffsets.startOffset;
+                const actualEndRow = endRowRef - this.config.rowOffsets.endOffset;
+
+                if (actualStartRow <= actualEndRow && actualStartRow >= 0 && actualEndRow < sheetData.length) {
+                    return sheetData.slice(actualStartRow, actualEndRow + 1);
+                }
+
+                console.warn('Rango calculado inválido, usando toda la hoja');
+                return sheetData;
+            }
+
+            // ========================================
+            // PROCESAMIENTO DE DATOS PRINCIPAL
+            // ========================================
+
+            processDataComplete(data) {
+                console.group('🔄 INICIANDO PROCESAMIENTO COMPLETO');
+
+                // Paso 1: Crear matriz de datos y procesar fila (N)
+                const dataMatrix = this.createDataMatrix(data);
+                console.log('✅ Matriz de datos creada');
+                console.table(dataMatrix);
+
+                // Paso 2: Convertir porcentajes a valores absolutos
+                const absoluteMatrix = this.convertPercentagesToAbsolute(dataMatrix);
+                console.log('✅ Convertido a valores absolutos');
+                console.table(absoluteMatrix);
+
+                // Paso 3: Calcular ponderadores
+                const adjustmentResult = this.calculateWeights(absoluteMatrix);
+                console.log('✅ Ponderadores calculados:', adjustmentResult);
+
+                // Paso 4: Aplicar ponderadores y generar matriz final
+                const finalMatrix = this.applyWeightsToMatrix(absoluteMatrix, adjustmentResult.ponderadores);
+                console.log('✅ Matriz final generada');
+                console.table(finalMatrix);
+
+                console.groupEnd();
+
+                return {
+                    originalMatrix: dataMatrix,
+                    absoluteMatrix,
+                    adjustmentResult,
+                    finalMatrix
+                };
+            }
+
+            createDataMatrix(data) {
+                const processedData = data.map(row => [...row]);
+
+                // Buscar y procesar fila que contiene (N)
+                for (let i = 0; i < processedData.length; i++) {
+                    const row = processedData[i];
+                    const hasNMarker = row.some(cell => cell?.toString().includes('(N)'));
+
+                    if (hasNMarker) {
+                        this.processNRow(processedData[i]);
+                        console.log(`📍 Fila (N) procesada en índice ${i}`);
+                        break;
+                    }
+                }
+
+                return processedData;
+            }
+
+            processNRow(row) {
+                for (let j = 0; j < row.length; j++) {
+                    const cell = row[j];
+                    if (cell == null || cell === '') continue;
+
+                    const cellStr = cell.toString();
+                    if (cellStr.includes('(N)')) continue;
+
+                    // Procesar números
+                    if (!isNaN(cellStr) && !isNaN(parseFloat(cellStr))) {
+                        row[j] = Math.trunc(parseFloat(cellStr));
+                    }
+                    // Procesar texto con números
+                    else if (/[\d,.\s]+/.test(cellStr)) {
+                        row[j] = cellStr.replace(/(\d+)[.,](\d+)/g, '$1');
+                    }
+                }
+            }
+
+            convertPercentagesToAbsolute(dataMatrix) {
+                const result = dataMatrix.map(row => [...row]);
+                const lastRowIndex = result.length - 1;
+                const nValues = result[lastRowIndex];
+
+                // Convertir porcentajes a absolutos (filas 1 a penúltima, columnas 1 en adelante)
+                for (let i = 1; i < lastRowIndex; i++) {
+                    for (let j = 1; j < result[i].length; j++) {
+                        const percentage = result[i][j];
+                        const nValue = nValues[j];
+                        result[i][j] = Math.round((percentage * nValue) / 100);
+                    }
+                }
+
+                return result;
+            }
+
+            calculateWeights(dataMatrix) {
+                const totalAdjustment = this.config.adjustmentArray.reduce((sum, value) => sum + value, 0);
+                const adjustmentArrayWithTotal = [totalAdjustment, ...this.config.adjustmentArray];
+
+                const lastRowIndex = dataMatrix.length - 1;
+                const sampleTotals = dataMatrix[lastRowIndex];
+                const totalSample = sampleTotals[1];
+                const totalReal = adjustmentArrayWithTotal[0];
+
+                const ponderadores = [];
+
+                // Calcular ponderadores para cada columna
+                for (let col = 2; col < sampleTotals.length; col++) {
+                    const sampleColumn = sampleTotals[col];
+                    const realColumn = adjustmentArrayWithTotal[col - 1];
+                    const ponderador = (realColumn / totalReal) / (sampleColumn / totalSample);
+
+                    ponderadores.push(ponderador);
+                    console.log(`📊 Columna ${col}: Muestra=${sampleColumn}, Real=${realColumn}, Ponderador=${ponderador.toFixed(6)}`);
+                }
+
+                return {
+                    adjustmentArrayWithTotal,
+                    ponderadores,
+                    totalSample,
+                    totalReal
+                };
+            }
+
+            applyWeightsToMatrix(dataMatrix, ponderadores) {
+                // Crear matriz sin última fila (N) y sin segunda columna (TOTAL)
+                const matrixCopy = [];
+
+                for (let i = 0; i < dataMatrix.length - 1; i++) {
+                    if (i === 0) {
+                        // Headers: excluir segunda columna
+                        matrixCopy.push([dataMatrix[i][0], ...dataMatrix[i].slice(2)]);
+                    } else {
+                        // Datos: excluir segunda columna
+                        matrixCopy.push([dataMatrix[i][0], ...dataMatrix[i].slice(2)]);
+                    }
+                }
+
+                // Aplicar ponderadores
+                for (let i = 1; i < matrixCopy.length; i++) {
+                    for (let j = 1; j < matrixCopy[i].length; j++) {
+                        const ponderadorIndex = j - 1;
+                        if (ponderadorIndex < ponderadores.length) {
+                            matrixCopy[i][j] = Math.round(matrixCopy[i][j] * ponderadores[ponderadorIndex]);
+                        }
+                    }
+                }
+
+                // Añadir columna TOTAL
+                this.addTotalColumn(matrixCopy);
+
+                // Añadir fila (N)
+                this.addNRow(matrixCopy);
+
+                return matrixCopy;
+            }
+
+            // Método corregido para añadir la columna TOTAL
+            addTotalColumn(matrix) {
+                for (let i = 0; i < matrix.length; i++) {
+                    if (i === 0) {
+                        // Header: insertar 'TOTAL' en posición 1
+                        matrix[i].splice(1, 0, 'TOTAL');
+                    } else {
+                        // Datos: calcular suma ANTES de insertar la columna TOTAL
+                        // Sumar desde la columna 1 en adelante (todas las columnas de datos actuales)
+                        const rowSum = matrix[i].slice(1).reduce((sum, val) => sum + (typeof val === 'number' ? val : 0), 0);
+                        // Insertar el total calculado en posición 1
+                        matrix[i].splice(1, 0, rowSum);
+                    }
+                }
+            }
+
+            addNRow(matrix) {
+                const nRow = ['(N)'];
+
+                for (let col = 1; col < matrix[0].length; col++) {
+                    const colSum = matrix.slice(1).reduce((sum, row) => sum + row[col], 0);
+                    nRow.push(colSum);
+                }
+
+                matrix.push(nRow);
+            }
+
+            // ========================================
+            // PRESENTACIÓN DE RESULTADOS
+            // ========================================
+
+            displayResults(result) {
+                this.filteredData = result.processedData.finalMatrix;
+                this.processedResult = result;
+
+                const infoHTML = this.generateInfoHTML(result);
+                this.elements.sheetInfo.innerHTML = infoHTML;
+
+                const tableHTML = this.generateTableHTML(this.filteredData);
+                this.elements.contentDisplay.innerHTML = tableHTML;
+
+                this.hideLoading();
+                this.showResults();
+            }
+
+            generateInfoHTML(result) {
+                const { sheetNames, sheetPosition, markers, processedData } = result;
+
+                let html = `
+            <strong>📊 Información del Procesamiento</strong><br>
+            <strong>Hoja:</strong> ${this.config.targetSheet} (${sheetPosition}/${sheetNames.length})<br>
+            <strong>Todas las hojas:</strong> ${sheetNames.join(', ')}<br>
+        `;
+
+                if (markers.startRowRef !== -1 && markers.endRowRef !== -1) {
+                    html += `
+                <strong>🎯 Marcadores encontrados:</strong><br>
+                &nbsp;&nbsp;• "${this.config.markers.start}" en fila ${markers.startRowRef + 1}<br>
+                &nbsp;&nbsp;• "${this.config.markers.end}" en fila ${markers.endRowRef + 1}<br>
+            `;
+                }
+
+                if (processedData.adjustmentResult) {
+                    html += `
+                <strong>⚖️ Ajustes aplicados:</strong><br>
+                &nbsp;&nbsp;• Total muestral: ${processedData.adjustmentResult.totalSample.toLocaleString()}<br>
+                &nbsp;&nbsp;• Total real: ${processedData.adjustmentResult.totalReal.toLocaleString()}<br>
+                &nbsp;&nbsp;• Ponderadores: ${processedData.adjustmentResult.ponderadores.length}<br>
+            `;
+                }
+
+                return html;
+            }
+
+            generateTableHTML(data) {
+                if (!data || data.length === 0) {
+                    return '<p style="color: #666; font-style: italic;">No hay datos para mostrar</p>';
+                }
+
+                const newSheet = XLSX.utils.aoa_to_sheet(data);
+                const sheetHTML = XLSX.utils.sheet_to_html(newSheet);
+                return sheetHTML.replace('<table>', '<table class="excel-table">');
+            }
+
+            // ========================================
+            // DESCARGA DE ARCHIVOS
+            // ========================================
+
+            downloadExcel() {
+                if (!this.filteredData) {
+                    alert('No hay datos para descargar');
+                    return;
+                }
+
+                try {
+                    const wb = XLSX.utils.book_new();
+                    const ws = XLSX.utils.aoa_to_sheet(this.filteredData);
+
+                    XLSX.utils.book_append_sheet(wb, ws, 'Datos Procesados RCIS');
+
+                    const fileName = this.generateFileName();
+                    XLSX.writeFile(wb, fileName);
+
+                    console.log('✅ Archivo descargado:', fileName);
+                } catch (error) {
+                    alert('Error al generar el archivo: ' + error.message);
+                    console.error('❌ Error en descarga:', error);
+                }
+            }
+
+            generateFileName() {
+                const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+                const baseFileName = this.originalFileName.replace(/\.[^/.]+$/, '') || 'rcis_datos';
+                return `${baseFileName}_procesado_${timestamp}.xlsx`;
+            }
+
+            // ========================================
+            // MANEJO DE UI
+            // ========================================
+
+            showError(message) {
+                this.elements.errorContainer.innerHTML = `<div class="error">❌ ${message}</div>`;
+                this.hideLoading();
+                this.hideResults();
+            }
+
+            clearError() {
+                this.elements.errorContainer.innerHTML = '';
+            }
+
+            showLoading() {
+                this.clearError();
+                this.elements.loading.style.display = 'block';
+                this.hideResults();
+                this.elements.downloadSection.style.display = 'none';
+            }
+
+            hideLoading() {
+                this.elements.loading.style.display = 'none';
+            }
+
+            showResults() {
+                this.elements.resultContainer.style.display = 'block';
+                this.elements.downloadSection.style.display = 'block';
+            }
+
+            hideResults() {
+                this.elements.resultContainer.style.display = 'none';
+            }
         }
+
+        // ============================================================================
+        // INICIALIZACIÓN
+        // ============================================================================
+
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🚀 Inicializando RCIS Processor...');
+            new RCISProcessor();
+            console.log('✅ RCIS Processor inicializado correctamente');
+        });
     </script>
 </body>
+
 </html>
