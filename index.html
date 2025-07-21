@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RCIS</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -291,7 +292,7 @@
                     targetSheet: "RV EG23",
                     markers: {
                         start: "Pregunta 14R",
-                        end: "SOLO A QUIENES VOTARÍAN A ALGÚN PARTIDO EN LAS PRÓXIMAS ELECCIONES GENERALES"
+                        end: "A QUIENES VOTARÍAN A ALGÚN PARTIDO EN LAS PRÓXIMAS ELECCIONES GENERALES"
                     },
                     rowOffsets: {
                         startOffset: 3, // filas después del marcador inicio
@@ -530,7 +531,7 @@
 
                     // Procesar números
                     if (!isNaN(cellStr) && !isNaN(parseFloat(cellStr))) {
-                        row[j] = Math.trunc(parseFloat(cellStr));
+                        row[j] = Math.round(parseFloat(cellStr)); //Ahora se redondea para que E-> 1 | E != 0
                     }
                     // Procesar texto con números
                     else if (/[\d,.\s]+/.test(cellStr)) {
@@ -569,7 +570,21 @@
 
                 // Calcular ponderadores para cada columna
                 for (let col = 2; col < sampleTotals.length; col++) {
-                    const sampleColumn = sampleTotals[col];
+                    let sampleColumn = sampleTotals[col];
+                    if (sampleColumn == 0) {
+                        sampleColumn = 1;
+                        Swal.fire({
+                            title: 'Muestra inexistente',
+                            html: `Pretendes ajustar una muestra inexistente en la columna <strong>${dataMatrix[0][col]}</strong><br><br>
+               Si aceptas, se calculará ajustando a 1 para poder proceder con los demás.<br>
+               <em>Es imposible que se ajuste a la proporción real</em>`,
+                            icon: 'warning',
+                            showCancelButton: false,
+                            confirmButtonColor: '#3085d6',
+                            confirmButtonText: 'Entiendo lo que significa',
+                            
+                        })
+                    }
                     const realColumn = adjustmentArrayWithTotal[col - 1];
                     const ponderador = (realColumn / totalReal) / (sampleColumn / totalSample);
 
