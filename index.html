@@ -6,203 +6,568 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RCIS</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <style>
+        <style>
+        /* ============================================================================
+           rcis DESIGN SYSTEM - COLORES Y TIPOGRAFÍA
+           ============================================================================ */
+        :root {
+            /* Paleta rcis */
+            --rcis-blue: #004481;
+            --rcis-light-blue: #1464A0;
+            --rcis-medium-blue: #2DCCCD;
+            --rcis-aqua: #2DCCCD;
+            --rcis-dark-blue: #043263;
+            --rcis-navy: #072146;
+            
+            /* Colores complementarios */
+            --rcis-white: #FFFFFF;
+            --rcis-light-gray: #F4F4F6;
+            --rcis-medium-gray: #BDBDBD;
+            --rcis-dark-gray: #666666;
+            --rcis-text-gray: #121212;
+            
+            /* Estados */
+            --rcis-success: #2ECC40;
+            --rcis-warning: #FF851B;
+            --rcis-error: #DC3545;
+            
+            /* Sombras rcis */
+            --shadow-light: 0 2px 8px rgba(4, 68, 129, 0.1);
+            --shadow-medium: 0 4px 16px rgba(4, 68, 129, 0.15);
+            --shadow-heavy: 0 8px 24px rgba(4, 68, 129, 0.2);
+            
+            /* Transiciones */
+            --transition-fast: 0.2s ease;
+            --transition-medium: 0.3s ease;
+        }
+
+        /* Reset y base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Benton Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, var(--rcis-light-gray) 0%, #E8F4F8 100%);
+            color: var(--rcis-text-gray);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* ============================================================================
+           LAYOUT PRINCIPAL
+           ============================================================================ */
+        .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
+            padding: 2rem;
+            min-height: 100vh;
         }
 
-        .container {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
+        /* Header principal */
         h1 {
-            color: #333;
+            font-size: 3rem;
+            font-weight: 300;
+            color: var(--rcis-blue);
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 3rem;
+            position: relative;
         }
 
-        .upload-area {
-            border: 2px dashed #4CAF50;
-            border-radius: 10px;
-            padding: 40px;
-            text-align: center;
-            margin-bottom: 30px;
-            transition: all 0.3s ease;
+        h1::after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--rcis-blue), var(--rcis-aqua));
+            margin: 1rem auto;
+            border-radius: 2px;
+        }
+
+        /* ============================================================================
+           SECCIÓN DE CONFIGURACIÓN
+           ============================================================================ */
+        .config-section {
+            background: var(--rcis-white);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-light);
+            border: 1px solid rgba(4, 68, 129, 0.1);
+        }
+
+        .config-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .config-header h3 {
+            font-size: 1.5rem;
+            color: var(--rcis-blue);
+            font-weight: 400;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .config-header p {
+            color: var(--rcis-dark-gray);
+            font-size: 0.95rem;
+        }
+
+        /* Toggle de unidades */
+        .units-toggle {
+            display: flex;
+            background: var(--rcis-light-gray);
+            border-radius: 8px;
+            padding: 4px;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+        }
+
+        .units-btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            background: transparent;
+            color: var(--rcis-dark-gray);
+            font-size: 0.9rem;
+            font-weight: 500;
+            border-radius: 6px;
             cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .units-btn.active {
+            background: var(--rcis-white);
+            color: var(--rcis-blue);
+            box-shadow: var(--shadow-light);
+            transform: translateY(-1px);
+        }
+
+        .units-btn:hover:not(.active) {
+            color: var(--rcis-blue);
+        }
+
+        /* Grid de configuración */
+        .config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .config-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .config-item label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--rcis-blue);
+        }
+
+        .config-item input {
+            padding: 0.875rem;
+            border: 2px solid var(--rcis-light-gray);
+            border-radius: 8px;
+            font-size: 1rem;
+            background: var(--rcis-white);
+            transition: all var(--transition-fast);
+            color: var(--rcis-text-gray);
+        }
+
+        .config-item input:focus {
+            outline: none;
+            border-color: var(--rcis-aqua);
+            box-shadow: 0 0 0 3px rgba(45, 204, 205, 0.1);
+        }
+
+        .config-item input:hover:not(:focus) {
+            border-color: var(--rcis-medium-gray);
+        }
+
+        /* Sección de recalcular */
+        .recalculate-section {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        /* ============================================================================
+           ÁREA DE CARGA
+           ============================================================================ */
+        .upload-area {
+            background: var(--rcis-white);
+            border: 3px dashed var(--rcis-light-blue);
+            border-radius: 16px;
+            padding: 3rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition-medium);
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-area::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(45, 204, 205, 0.1), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .upload-area:hover::before {
+            left: 100%;
         }
 
         .upload-area:hover {
-            background-color: #f9f9f9;
-            border-color: #45a049;
+            border-color: var(--rcis-aqua);
+            background: rgba(45, 204, 205, 0.02);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
         }
 
         .upload-area.dragover {
-            background-color: #e8f5e8;
-            border-color: #45a049;
+            border-color: var(--rcis-aqua);
+            background: rgba(45, 204, 205, 0.05);
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            filter: grayscale(1);
+            transition: filter var(--transition-medium);
+        }
+
+        .upload-area:hover .upload-icon {
+            filter: grayscale(0);
+        }
+
+        .upload-text {
+            font-size: 1.25rem;
+            font-weight: 500;
+            color: var(--rcis-blue);
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-subtext {
+            color: var(--rcis-dark-gray);
+            font-size: 0.9rem;
         }
 
         #fileInput {
             display: none;
         }
 
-        .upload-icon {
-            font-size: 48px;
-            color: #4CAF50;
-            margin-bottom: 20px;
-        }
-
-        .upload-text {
-            font-size: 18px;
-            color: #666;
-            margin-bottom: 10px;
-        }
-
-        .upload-subtext {
-            font-size: 14px;
-            color: #999;
-        }
-
+        /* ============================================================================
+           BOTONES
+           ============================================================================ */
         .btn {
-            background-color: #4CAF50;
-            color: white;
-            padding: 12px 24px;
+            padding: 1rem 2rem;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
             cursor: pointer;
-            font-size: 16px;
-            margin: 15px 10px 0 0;
+            transition: all var(--transition-fast);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
             text-decoration: none;
-            display: inline-block;
+            position: relative;
+            overflow: hidden;
         }
 
-        .btn:hover {
-            background-color: #45a049;
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transition: all 0.4s ease;
+            transform: translate(-50%, -50%);
+        }
+
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-recalculate {
+            background: linear-gradient(135deg, var(--rcis-blue), var(--rcis-light-blue));
+            color: var(--rcis-white);
+            box-shadow: var(--shadow-light);
+        }
+
+        .btn-recalculate:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .btn-recalculate:disabled {
+            background: var(--rcis-medium-gray);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
 
         .btn-download {
-            background-color: #2196F3;
+            background: linear-gradient(135deg, var(--rcis-aqua), var(--rcis-medium-blue));
+            color: var(--rcis-white);
+            box-shadow: var(--shadow-light);
         }
 
         .btn-download:hover {
-            background-color: #1976D2;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
         }
 
-        .result-container {
-            margin-top: 30px;
-            display: none;
-        }
-
-        .sheet-info {
-            background-color: #e8f4f8;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-        }
-
-        .sheet-info h3 {
-            margin: 0 0 10px 0;
-            color: #2196F3;
-        }
-
-        .download-section {
-            background-color: #f0f8ff;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .content-area {
-            background-color: #fafafa;
-            padding: 20px;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-            max-height: 500px;
-            overflow: auto;
-        }
-
-        .excel-table {
-            border-collapse: collapse;
-            width: 100%;
-            font-size: 12px;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        .excel-table th,
-        .excel-table td {
-            border: 1px solid #ccc;
-            padding: 6px 8px;
-            text-align: left;
-            vertical-align: top;
-            min-width: 60px;
-            max-width: 200px;
-            word-wrap: break-word;
-        }
-
-        .excel-table th {
-            background-color: #f0f0f0;
-            font-weight: bold;
-            text-align: center;
-        }
-
-        .excel-table tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-
-        .excel-table tr:hover {
-            background-color: #f5f5f5;
-        }
-
-        .content-area pre {
-            margin: 0;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            line-height: 1.4;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-        }
-
-        .error {
-            background-color: #ffebee;
-            color: #c62828;
-            padding: 15px;
-            border-radius: 5px;
-            margin-top: 20px;
-        }
-
+        /* ============================================================================
+           LOADING Y ESTADOS
+           ============================================================================ */
         .loading {
             text-align: center;
-            padding: 20px;
-            color: #666;
+            padding: 3rem;
+            font-size: 1.25rem;
+            color: var(--rcis-blue);
+            background: var(--rcis-white);
+            border-radius: 16px;
+            box-shadow: var(--shadow-light);
+            position: relative;
+            overflow: hidden;
         }
 
         .loading::after {
             content: '';
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 2px solid #f3f3f3;
-            border-top: 2px solid #4CAF50;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-left: 10px;
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--rcis-aqua), var(--rcis-blue), var(--rcis-aqua));
+            animation: loading-bar 1.5s infinite;
         }
 
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
+        @keyframes loading-bar {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        /* Errores */
+        .error {
+            background: linear-gradient(135deg, #FFE6E6, #FFD6D6);
+            color: var(--rcis-error);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid rgba(220, 53, 69, 0.2);
+            margin: 1rem 0;
+            font-weight: 500;
+            box-shadow: var(--shadow-light);
+        }
+
+        /* ============================================================================
+           SECCIÓN DE RESULTADOS
+           ============================================================================ */
+        .result-container {
+            display: none;
+            animation: fadeInUp 0.5s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .sheet-info {
+            background: var(--rcis-white);
+            padding: 2rem;
+            border-radius: 16px;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-light);
+            border-left: 4px solid var(--rcis-aqua);
+        }
+
+        .sheet-info h3 {
+            color: var(--rcis-blue);
+            margin-bottom: 1rem;
+            font-weight: 400;
+        }
+
+        .download-section {
+            background: linear-gradient(135deg, var(--rcis-white), #F8FBFF);
+            padding: 2rem;
+            border-radius: 16px;
+            margin-bottom: 2rem;
+            text-align: center;
+            box-shadow: var(--shadow-light);
+            border: 1px solid rgba(45, 204, 205, 0.1);
+        }
+
+        .download-section h3 {
+            color: var(--rcis-blue);
+            margin-bottom: 0.5rem;
+            font-weight: 400;
+        }
+
+        .download-section p {
+            color: var(--rcis-dark-gray);
+            margin-bottom: 1.5rem;
+        }
+
+        /* ============================================================================
+           TABLA DE DATOS
+           ============================================================================ */
+        .content-area {
+            background: var(--rcis-white);
+            border-radius: 16px;
+            padding: 1rem;
+            box-shadow: var(--shadow-light);
+            overflow: hidden;
+        }
+
+        .table-wrapper {
+            overflow: auto;
+            max-height: 80vh;
+            border-radius: 12px;
+        }
+
+        .excel-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+            background: var(--rcis-white);
+        }
+
+        .excel-table th,
+        .excel-table td {
+            padding: 1rem 1.5rem;
+            text-align: left;
+            border-bottom: 1px solid var(--rcis-light-gray);
+            border-right: 1px solid var(--rcis-light-gray);
+        }
+
+        .excel-table th {
+            background: linear-gradient(135deg, var(--rcis-blue), var(--rcis-light-blue));
+            color: var(--rcis-white);
+            font-weight: 500;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .excel-table tr:nth-child(even) {
+            background: rgba(45, 204, 205, 0.02);
+        }
+
+        .excel-table tr:hover {
+            background: rgba(45, 204, 205, 0.05);
+        }
+
+        .excel-table td:first-child {
+            font-weight: 500;
+            color: var(--rcis-blue);
+            background: rgba(4, 68, 129, 0.02);
+        }
+
+        /* ============================================================================
+           RESPONSIVE DESIGN
+           ============================================================================ */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
             }
 
-            100% {
-                transform: rotate(360deg);
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .config-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .config-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .upload-area {
+                padding: 2rem 1rem;
+            }
+
+            .units-toggle {
+                align-self: stretch;
+            }
+
+            .excel-table th,
+            .excel-table td {
+                padding: 0.75rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .config-section,
+            .sheet-info,
+            .download-section,
+            .content-area {
+                padding: 1.5rem;
+            }
+
+            .btn {
+                padding: 0.875rem 1.5rem;
+                font-size: 0.95rem;
+            }
+        }
+
+        /* ============================================================================
+           MEJORAS DE ACCESIBILIDAD
+           ============================================================================ */
+        .btn:focus,
+        input:focus {
+            outline: 3px solid rgba(45, 204, 205, 0.3);
+            outline-offset: 2px;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* Estados de hover mejorados */
+        @media (hover: hover) {
+            .config-item input:hover {
+                box-shadow: 0 2px 8px rgba(4, 68, 129, 0.1);
             }
         }
     </style>
@@ -210,7 +575,21 @@
 
 <body>
     <div class="container">
-        <h1>📊 RCIS</h1>
+        <h1>RCIS</h1>
+
+        <div class="config-section">
+            <div class="config-header">
+                <div>
+                    <h3>⚙️ Configuración de Ajustes</h3>
+                    <p>Valores de población real para el ajuste ponderado:</p>
+                </div>
+                <div class="units-toggle">
+                    <button class="units-btn active" id="unidadesBtn">Unidades</button>
+                    <button class="units-btn" id="milesBtn">Miles</button>
+                </div>
+            </div>
+            <div class="config-grid" id="configGrid"></div>
+        </div>
 
         <div class="upload-area" id="uploadArea">
             <div class="upload-icon">📁</div>
@@ -233,9 +612,9 @@
             </div>
 
             <div class="download-section" id="downloadSection" style="display: none;">
-                <h3>📥 Descargar Datos</h3>
+                <h3>Descargar Datos</h3>
                 <p>Descarga los datos filtrados como un archivo Excel</p>
-                <button class="btn btn-download" id="downloadBtn">⬇️ Descargar XLSX</button>
+                <button class="btn btn-download" id="downloadBtn">Descargar XLSX</button>
             </div>
 
             <div class="content-area">
@@ -246,202 +625,87 @@
 
     <script>
         // ============================================================================
-        // RCIS - Sistema de Procesamiento de Datos Electorales
-        // Versión optimizada con mejores prácticas de JavaScript
+        // CONFIGURACIÓN
+        // ============================================================================
+        const CONFIG = {
+            targetSheet: "RV EG23",
+            markers: {
+                start: "Pregunta 14R",
+                end: "A QUIENES VOTARÍAN A ALGÚN PARTIDO EN LAS PRÓXIMAS ELECCIONES GENERALES"
+            },
+            rowOffsets: { startOffset: 3, endOffset: 3 },
+            defaultAdjustments: [
+                { label: "PP", value: 8091840 },
+                { label: "PSOE", value: 7760970 },
+                { label: "VOX", value: 3033744 },
+                { label: "Sumar", value: 3014006 },
+                { label: "ERC", value: 462883 },
+                { label: "Junts", value: 392634 },
+                { label: "EH Bildu", value: 333362 },
+                { label: "EAJ-PNV", value: 275782 },
+                { label: "BNG", value: 152327 },
+                { label: "CCa", value: 114718 },
+                { label: "UPN", value: 51764 },
+                { label: "PACMA", value: 169237 },
+                { label: "Otro partido", value: 606450 },
+                { label: "En blanco", value: 199392 },
+                { label: "Nulo", value: 261078 },
+                { label: "No votó", value: 1000000 },
+                { label: "No tenía edad", value: 500000 },
+                { label: "No tenía derecho a voto", value: 500000 },
+                { label: "N.R.", value: 50000 },
+                { label: "N.C.", value: 50000 }
+            ]
+        };
+
+        // ============================================================================
+        // CLASES - PRINCIPIO DE RESPONSABILIDAD ÚNICA
         // ============================================================================
 
-        class RCISProcessor {
-            constructor() {
-                this.initializeElements();
-                this.initializeData();
-                this.setupEventListeners();
-                this.setupConfiguration();
-            }
-
-            // ========================================
-            // CONFIGURACIÓN E INICIALIZACIÓN
-            // ========================================
-
-            initializeElements() {
-                this.elements = {
-                    fileInput: document.getElementById('fileInput'),
-                    uploadArea: document.getElementById('uploadArea'),
-                    loading: document.getElementById('loading'),
-                    errorContainer: document.getElementById('errorContainer'),
-                    resultContainer: document.getElementById('resultContainer'),
-                    sheetInfo: document.getElementById('sheetInfo'),
-                    contentDisplay: document.getElementById('contentDisplay'),
-                    downloadSection: document.getElementById('downloadSection'),
-                    downloadBtn: document.getElementById('downloadBtn')
-                };
-            }
-
-            initializeData() {
-                this.filteredData = null;
-                this.originalFileName = '';
-                this.processedResult = null;
-            }
-
-            setupConfiguration() {
-                this.config = {
-                    adjustmentArray: [
-                        8091840, 7760970, 3033744, 3014006, 462883, 392634, 333362, 275782,
-                        152327, 114718, 51764, 169237, 606450, 199392, 261078, 1000000,
-                        500000, 500000, 50000, 50000
-                    ],
-                    targetSheet: "RV EG23",
-                    markers: {
-                        start: "Pregunta 14R",
-                        end: "A QUIENES VOTARÍAN A ALGÚN PARTIDO EN LAS PRÓXIMAS ELECCIONES GENERALES"
-                    },
-                    rowOffsets: {
-                        startOffset: 3, // filas después del marcador inicio
-                        endOffset: 3    // filas antes del marcador final
-                    }
-                };
-            }
-
-            setupEventListeners() {
-                // Drag and Drop
-                this.elements.uploadArea.addEventListener('dragover', this.handleDragOver.bind(this));
-                this.elements.uploadArea.addEventListener('dragleave', this.handleDragLeave.bind(this));
-                this.elements.uploadArea.addEventListener('drop', this.handleDrop.bind(this));
-                this.elements.uploadArea.addEventListener('click', () => this.elements.fileInput.click());
-
-                // File input
-                this.elements.fileInput.addEventListener('change', this.handleFileInputChange.bind(this));
-
-                // Download button
-                this.elements.downloadBtn.addEventListener('click', this.downloadExcel.bind(this));
-            }
-
-            // ========================================
-            // MANEJO DE EVENTOS
-            // ========================================
-
-            handleDragOver(e) {
-                e.preventDefault();
-                this.elements.uploadArea.classList.add('dragover');
-            }
-
-            handleDragLeave() {
-                this.elements.uploadArea.classList.remove('dragover');
-            }
-
-            handleDrop(e) {
-                e.preventDefault();
-                this.elements.uploadArea.classList.remove('dragover');
-
-                const files = e.dataTransfer.files;
-                if (files.length > 0) {
-                    this.handleFile(files[0]);
-                }
-            }
-
-            handleFileInputChange(e) {
-                if (e.target.files.length > 0) {
-                    this.handleFile(e.target.files[0]);
-                }
-            }
-
-            // ========================================
-            // MANEJO DE ARCHIVOS Y VALIDACIÓN
-            // ========================================
-
-            handleFile(file) {
-                if (!this.validateFile(file)) return;
-
-                this.originalFileName = file.name;
-                this.showLoading();
-                this.processFileAsync(file);
-            }
-
-            validateFile(file) {
+        // Maneja solo la validación de archivos
+        class FileValidator {
+            static validate(file) {
                 if (!file.name.toLowerCase().endsWith('.xlsx')) {
-                    this.showError('Por favor selecciona un archivo .xlsx válido');
-                    return false;
+                    throw new Error('Por favor selecciona un archivo .xlsx válido');
                 }
                 return true;
             }
+        }
 
-            async processFileAsync(file) {
-                try {
-                    const arrayBuffer = await this.readFileAsArrayBuffer(file);
-                    const workbook = XLSX.read(new Uint8Array(arrayBuffer), { type: 'array' });
-
-                    const result = this.processWorkbook(workbook);
-                    this.displayResults(result);
-
-                } catch (error) {
-                    this.showError('Error al procesar el archivo: ' + error.message);
-                }
+        // Maneja solo el procesamiento de datos
+        class DataProcessor {
+            constructor(adjustmentArray) {
+                this.adjustmentArray = adjustmentArray;
             }
 
-            readFileAsArrayBuffer(file) {
-                return new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onload = e => resolve(e.target.result);
-                    reader.onerror = () => reject(new Error('Error al leer el archivo'));
-                    reader.readAsArrayBuffer(file);
-                });
-            }
-
-            // ========================================
-            // PROCESAMIENTO DE WORKBOOK
-            // ========================================
-
-            processWorkbook(workbook) {
-                const sheetNames = workbook.SheetNames;
-
-                if (sheetNames.length === 0) {
-                    throw new Error('El archivo no contiene hojas de cálculo');
-                }
-
-                if (!sheetNames.includes(this.config.targetSheet)) {
-                    throw new Error(`La hoja "${this.config.targetSheet}" no se encontró. Hojas disponibles: ${sheetNames.join(', ')}`);
-                }
-
-                const targetSheet = workbook.Sheets[this.config.targetSheet];
-                const sheetData = XLSX.utils.sheet_to_json(targetSheet, { header: 1, defval: '' });
-
+            process(workbook) {
+                const sheet = this.getTargetSheet(workbook);
+                const sheetData = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
                 const markers = this.findMarkers(sheetData);
                 const filteredData = this.extractDataRange(sheetData, markers);
-                const processedData = this.processDataComplete(filteredData);
+                return this.processData(filteredData);
+            }
 
-                return {
-                    sheetNames,
-                    sheetPosition: sheetNames.indexOf(this.config.targetSheet) + 1,
-                    markers,
-                    originalData: sheetData,
-                    filteredData,
-                    processedData,
-                    targetSheet
-                };
+            getTargetSheet(workbook) {
+                if (!workbook.Sheets[CONFIG.targetSheet]) {
+                    throw new Error(`La hoja "${CONFIG.targetSheet}" no se encontró`);
+                }
+                return workbook.Sheets[CONFIG.targetSheet];
             }
 
             findMarkers(sheetData) {
-                let startRowRef = -1;
-                let endRowRef = -1;
+                let startRowRef = -1, endRowRef = -1;
 
                 for (let i = 0; i < sheetData.length; i++) {
                     const row = sheetData[i];
-
-                    if (startRowRef === -1) {
-                        for (let j = 0; j < row.length; j++) {
-                            if (row[j]?.toString().includes(this.config.markers.start)) {
-                                startRowRef = i;
-                                break;
-                            }
-                        }
+                    
+                    if (startRowRef === -1 && row.some(cell => cell?.toString().includes(CONFIG.markers.start))) {
+                        startRowRef = i;
                     }
-
-                    if (startRowRef !== -1 && endRowRef === -1) {
-                        for (let j = 0; j < row.length; j++) {
-                            if (row[j]?.toString().includes(this.config.markers.end)) {
-                                endRowRef = i;
-                                break;
-                            }
-                        }
+                    
+                    if (startRowRef !== -1 && endRowRef === -1 && row.some(cell => cell?.toString().includes(CONFIG.markers.end))) {
+                        endRowRef = i;
+                        break;
                     }
                 }
 
@@ -450,102 +714,55 @@
 
             extractDataRange(sheetData, markers) {
                 const { startRowRef, endRowRef } = markers;
-
+                
                 if (startRowRef === -1 || endRowRef === -1) {
-                    console.warn('Marcadores no encontrados, usando toda la hoja');
                     return sheetData;
                 }
 
-                const actualStartRow = startRowRef + this.config.rowOffsets.startOffset;
-                const actualEndRow = endRowRef - this.config.rowOffsets.endOffset;
+                const actualStartRow = startRowRef + CONFIG.rowOffsets.startOffset;
+                const actualEndRow = endRowRef - CONFIG.rowOffsets.endOffset;
 
                 if (actualStartRow <= actualEndRow && actualStartRow >= 0 && actualEndRow < sheetData.length) {
                     return sheetData.slice(actualStartRow, actualEndRow + 1);
                 }
 
-                console.warn('Rango calculado inválido, usando toda la hoja');
                 return sheetData;
             }
 
-            // ========================================
-            // PROCESAMIENTO DE DATOS PRINCIPAL
-            // ========================================
-
-            processDataComplete(data) {
-                console.group('🔄 INICIANDO PROCESAMIENTO COMPLETO');
-
-                // Paso 1: Crear matriz de datos y procesar fila (N)
+            processData(data) {
                 const dataMatrix = this.createDataMatrix(data);
-                console.log('✅ Matriz de datos creada');
-                console.table(dataMatrix);
-
-                // Paso 2: Convertir porcentajes a valores absolutos
-                const absoluteMatrix = this.convertPercentagesToAbsolute(dataMatrix);
-                console.log('✅ Convertido a valores absolutos');
-                console.table(absoluteMatrix);
-
-                // Paso 3: Calcular ponderadores
-                const adjustmentResult = this.calculateWeights(absoluteMatrix);
-                console.log('✅ Ponderadores calculados:', adjustmentResult);
-
-                // Paso 4: Aplicar ponderadores y generar matriz final
-                const finalMatrix = this.applyWeightsToMatrix(absoluteMatrix, adjustmentResult.ponderadores);
-                console.log('✅ Matriz final generada');
-                console.table(finalMatrix);
-
-                console.groupEnd();
-
-                return {
-                    originalMatrix: dataMatrix,
-                    absoluteMatrix,
-                    adjustmentResult,
-                    finalMatrix
-                };
+                const absoluteMatrix = this.convertToAbsolute(dataMatrix);
+                const weights = this.calculateWeights(absoluteMatrix);
+                return this.applyWeights(absoluteMatrix, weights);
             }
 
             createDataMatrix(data) {
-                const processedData = data.map(row => [...row]);
-
-                // Buscar y procesar fila que contiene (N)
-                for (let i = 0; i < processedData.length; i++) {
-                    const row = processedData[i];
-                    const hasNMarker = row.some(cell => cell?.toString().includes('(N)'));
-
-                    if (hasNMarker) {
-                        this.processNRow(processedData[i]);
-                        console.log(`📍 Fila (N) procesada en índice ${i}`);
+                const matrix = data.map(row => [...row]);
+                
+                for (let row of matrix) {
+                    if (row.some(cell => cell?.toString().includes('(N)'))) {
+                        this.processNRow(row);
                         break;
                     }
                 }
-
-                return processedData;
+                
+                return matrix;
             }
 
             processNRow(row) {
                 for (let j = 0; j < row.length; j++) {
                     const cell = row[j];
-                    if (cell == null || cell === '') continue;
-
-                    const cellStr = cell.toString();
-                    if (cellStr.includes('(N)')) continue;
-
-                    // Procesar números
-                    if (!isNaN(cellStr) && !isNaN(parseFloat(cellStr))) {
-                        row[j] = Math.round(parseFloat(cellStr)); //Ahora se redondea para que E-> 1 | E != 0
-                    }
-                    // Procesar texto con números
-                    else if (/[\d,.\s]+/.test(cellStr)) {
-                        row[j] = cellStr.replace(/(\d+)[.,](\d+)/g, '$1');
+                    if (cell && !cell.toString().includes('(N)') && !isNaN(parseFloat(cell))) {
+                        row[j] = Math.round(parseFloat(cell));
                     }
                 }
             }
 
-            convertPercentagesToAbsolute(dataMatrix) {
-                const result = dataMatrix.map(row => [...row]);
+            convertToAbsolute(matrix) {
+                const result = matrix.map(row => [...row]);
                 const lastRowIndex = result.length - 1;
                 const nValues = result[lastRowIndex];
 
-                // Convertir porcentajes a absolutos (filas 1 a penúltima, columnas 1 en adelante)
                 for (let i = 1; i < lastRowIndex; i++) {
                     for (let j = 1; j < result[i].length; j++) {
                         const percentage = result[i][j];
@@ -557,93 +774,60 @@
                 return result;
             }
 
-            calculateWeights(dataMatrix) {
-                const totalAdjustment = this.config.adjustmentArray.reduce((sum, value) => sum + value, 0);
-                const adjustmentArrayWithTotal = [totalAdjustment, ...this.config.adjustmentArray];
-
-                const lastRowIndex = dataMatrix.length - 1;
-                const sampleTotals = dataMatrix[lastRowIndex];
+            calculateWeights(matrix) {
+                const totalAdjustment = this.adjustmentArray.reduce((sum, val) => sum + val, 0);
+                const lastRowIndex = matrix.length - 1;
+                const sampleTotals = matrix[lastRowIndex];
                 const totalSample = sampleTotals[1];
-                const totalReal = adjustmentArrayWithTotal[0];
 
-                const ponderadores = [];
-
-                // Calcular ponderadores para cada columna
+                const weights = [];
                 for (let col = 2; col < sampleTotals.length; col++) {
                     let sampleColumn = sampleTotals[col];
-                    if (sampleColumn == 0) {
+                    if (sampleColumn === 0) {
                         sampleColumn = 1;
-                        Swal.fire({
-                            title: 'Muestra inexistente',
-                            html: `Pretendes ajustar una muestra inexistente en la columna <strong>${dataMatrix[0][col]}</strong><br><br>
-               Si aceptas, se calculará ajustando a 1 para poder proceder con los demás.<br>
-               <em>Es imposible que se ajuste a la proporción real</em>`,
-                            icon: 'warning',
-                            showCancelButton: false,
-                            confirmButtonColor: '#3085d6',
-                            confirmButtonText: 'Entiendo lo que significa',
-                            
-                        })
+                        alert(`Muestra inexistente en columna ${matrix[0][col]}. Se ajustará a 1 para continuar.`);
                     }
-                    const realColumn = adjustmentArrayWithTotal[col - 1];
-                    const ponderador = (realColumn / totalReal) / (sampleColumn / totalSample);
-
-                    ponderadores.push(ponderador);
-                    console.log(`📊 Columna ${col}: Muestra=${sampleColumn}, Real=${realColumn}, Ponderador=${ponderador.toFixed(6)}`);
+                    
+                    const realColumn = this.adjustmentArray[col - 2];
+                    const weight = realColumn  / sampleColumn ;
+                    weights.push(weight);
                 }
 
-                return {
-                    adjustmentArrayWithTotal,
-                    ponderadores,
-                    totalSample,
-                    totalReal
-                };
+                return weights;
             }
 
-            applyWeightsToMatrix(dataMatrix, ponderadores) {
-                // Crear matriz sin última fila (N) y sin segunda columna (TOTAL)
-                const matrixCopy = [];
+            applyWeights(matrix, weights) {
+                const result = [];
 
-                for (let i = 0; i < dataMatrix.length - 1; i++) {
+                // Headers sin columna TOTAL
+                for (let i = 0; i < matrix.length - 1; i++) {
                     if (i === 0) {
-                        // Headers: excluir segunda columna
-                        matrixCopy.push([dataMatrix[i][0], ...dataMatrix[i].slice(2)]);
+                        result.push([matrix[i][0], ...matrix[i].slice(2)]);
                     } else {
-                        // Datos: excluir segunda columna
-                        matrixCopy.push([dataMatrix[i][0], ...dataMatrix[i].slice(2)]);
+                        result.push([matrix[i][0], ...matrix[i].slice(2)]);
                     }
                 }
 
                 // Aplicar ponderadores
-                for (let i = 1; i < matrixCopy.length; i++) {
-                    for (let j = 1; j < matrixCopy[i].length; j++) {
-                        const ponderadorIndex = j - 1;
-                        if (ponderadorIndex < ponderadores.length) {
-                            matrixCopy[i][j] = Math.round(matrixCopy[i][j] * ponderadores[ponderadorIndex]);
+                for (let i = 1; i < result.length; i++) {
+                    for (let j = 1; j < result[i].length; j++) {
+                        if (j - 1 < weights.length) {
+                            result[i][j] = Math.round(result[i][j] * weights[j - 1]);
                         }
                     }
                 }
 
-                // Añadir columna TOTAL
-                this.addTotalColumn(matrixCopy);
-
-                // Añadir fila (N)
-                this.addNRow(matrixCopy);
-
-                return matrixCopy;
+                this.addTotalColumn(result);
+                this.addNRow(result);
+                return result;
             }
 
-            // Método corregido para añadir la columna TOTAL
             addTotalColumn(matrix) {
                 for (let i = 0; i < matrix.length; i++) {
                     if (i === 0) {
-                        // Header: insertar 'TOTAL' en posición 1
                         matrix[i].splice(1, 0, 'TOTAL');
                     } else {
-                        // Datos: calcular suma ANTES de insertar la columna TOTAL
-                        // Sumar desde la columna 1 en adelante (todas las columnas de datos actuales)
                         const rowSum = matrix[i].slice(1).reduce((sum, val) => sum + (typeof val === 'number' ? val : 0), 0);
-                        // Insertar el total calculado en posición 1
                         matrix[i].splice(1, 0, rowSum);
                     }
                 }
@@ -651,107 +835,30 @@
 
             addNRow(matrix) {
                 const nRow = ['(N)'];
-
                 for (let col = 1; col < matrix[0].length; col++) {
                     const colSum = matrix.slice(1).reduce((sum, row) => sum + row[col], 0);
                     nRow.push(colSum);
                 }
-
                 matrix.push(nRow);
             }
+        }
 
-            // ========================================
-            // PRESENTACIÓN DE RESULTADOS
-            // ========================================
-
-            displayResults(result) {
-                this.filteredData = result.processedData.finalMatrix;
-                this.processedResult = result;
-
-                const infoHTML = this.generateInfoHTML(result);
-                this.elements.sheetInfo.innerHTML = infoHTML;
-
-                const tableHTML = this.generateTableHTML(this.filteredData);
-                this.elements.contentDisplay.innerHTML = tableHTML;
-
-                this.hideLoading();
-                this.showResults();
+        // Maneja solo la interfaz de usuario
+        class UIManager {
+            constructor() {
+                this.elements = {
+                    fileInput: document.getElementById('fileInput'),
+                    uploadArea: document.getElementById('uploadArea'),
+                    loading: document.getElementById('loading'),
+                    errorContainer: document.getElementById('errorContainer'),
+                    resultContainer: document.getElementById('resultContainer'),
+                    sheetInfo: document.getElementById('sheetInfo'),
+                    contentDisplay: document.getElementById('contentDisplay'),
+                    downloadSection: document.getElementById('downloadSection'),
+                    downloadBtn: document.getElementById('downloadBtn'),
+                    recalculateBtn: null // Se inicializará cuando se cree
+                };
             }
-
-            generateInfoHTML(result) {
-                const { sheetNames, sheetPosition, markers, processedData } = result;
-
-                let html = `
-            <strong>📊 Información del Procesamiento</strong><br>
-            <strong>Hoja:</strong> ${this.config.targetSheet} (${sheetPosition}/${sheetNames.length})<br>
-            <strong>Todas las hojas:</strong> ${sheetNames.join(', ')}<br>
-        `;
-
-                if (markers.startRowRef !== -1 && markers.endRowRef !== -1) {
-                    html += `
-                <strong>🎯 Marcadores encontrados:</strong><br>
-                &nbsp;&nbsp;• "${this.config.markers.start}" en fila ${markers.startRowRef + 1}<br>
-                &nbsp;&nbsp;• "${this.config.markers.end}" en fila ${markers.endRowRef + 1}<br>
-            `;
-                }
-
-                if (processedData.adjustmentResult) {
-                    html += `
-                <strong>⚖️ Ajustes aplicados:</strong><br>
-                &nbsp;&nbsp;• Total muestral: ${processedData.adjustmentResult.totalSample.toLocaleString()}<br>
-                &nbsp;&nbsp;• Total real: ${processedData.adjustmentResult.totalReal.toLocaleString()}<br>
-                &nbsp;&nbsp;• Ponderadores: ${processedData.adjustmentResult.ponderadores.length}<br>
-            `;
-                }
-
-                return html;
-            }
-
-            generateTableHTML(data) {
-                if (!data || data.length === 0) {
-                    return '<p style="color: #666; font-style: italic;">No hay datos para mostrar</p>';
-                }
-
-                const newSheet = XLSX.utils.aoa_to_sheet(data);
-                const sheetHTML = XLSX.utils.sheet_to_html(newSheet);
-                return sheetHTML.replace('<table>', '<table class="excel-table">');
-            }
-
-            // ========================================
-            // DESCARGA DE ARCHIVOS
-            // ========================================
-
-            downloadExcel() {
-                if (!this.filteredData) {
-                    alert('No hay datos para descargar');
-                    return;
-                }
-
-                try {
-                    const wb = XLSX.utils.book_new();
-                    const ws = XLSX.utils.aoa_to_sheet(this.filteredData);
-
-                    XLSX.utils.book_append_sheet(wb, ws, 'Datos Procesados RCIS');
-
-                    const fileName = this.generateFileName();
-                    XLSX.writeFile(wb, fileName);
-
-                    console.log('✅ Archivo descargado:', fileName);
-                } catch (error) {
-                    alert('Error al generar el archivo: ' + error.message);
-                    console.error('❌ Error en descarga:', error);
-                }
-            }
-
-            generateFileName() {
-                const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
-                const baseFileName = this.originalFileName.replace(/\.[^/.]+$/, '') || 'rcis_datos';
-                return `${baseFileName}_procesado_${timestamp}.xlsx`;
-            }
-
-            // ========================================
-            // MANEJO DE UI
-            // ========================================
 
             showError(message) {
                 this.elements.errorContainer.innerHTML = `<div class="error">❌ ${message}</div>`;
@@ -767,14 +874,15 @@
                 this.clearError();
                 this.elements.loading.style.display = 'block';
                 this.hideResults();
-                this.elements.downloadSection.style.display = 'none';
             }
 
             hideLoading() {
                 this.elements.loading.style.display = 'none';
             }
 
-            showResults() {
+            showResults(data, info) {
+                this.elements.sheetInfo.innerHTML = info;
+                this.elements.contentDisplay.innerHTML = this.generateTableHTML(data);
                 this.elements.resultContainer.style.display = 'block';
                 this.elements.downloadSection.style.display = 'block';
             }
@@ -782,16 +890,295 @@
             hideResults() {
                 this.elements.resultContainer.style.display = 'none';
             }
+
+            generateTableHTML(data) {
+                if (!data || data.length === 0) {
+                    return '<p style="color: #666; font-style: italic;">No hay datos para mostrar</p>';
+                }
+
+                const sheet = XLSX.utils.aoa_to_sheet(data);
+                const html = XLSX.utils.sheet_to_html(sheet);
+                const tableHtml = html.replace('<table>', '<table class="excel-table">');
+                
+                // Envolver la tabla en un contenedor con scroll horizontal
+                return `<div class="table-wrapper">${tableHtml}</div>`;
+            }
+
+            enableRecalculateButton() {
+                if (this.elements.recalculateBtn) {
+                    this.elements.recalculateBtn.disabled = false;
+                }
+            }
+
+            disableRecalculateButton() {
+                if (this.elements.recalculateBtn) {
+                    this.elements.recalculateBtn.disabled = true;
+                }
+            }
+        }
+
+        // Maneja solo la descarga de archivos
+        class FileDownloader {
+            static download(data, originalFileName) {
+                try {
+                    const wb = XLSX.utils.book_new();
+                    const ws = XLSX.utils.aoa_to_sheet(data);
+                    XLSX.utils.book_append_sheet(wb, ws, 'Datos Procesados RCIS');
+
+                    const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+                    const baseFileName = originalFileName.replace(/\.[^/.]+$/, '') || 'rcis_datos';
+                    const fileName = `${baseFileName}_procesado_${timestamp}.xlsx`;
+
+                    XLSX.writeFile(wb, fileName);
+                } catch (error) {
+                    throw new Error('Error al generar el archivo: ' + error.message);
+                }
+            }
+        }
+
+        // Maneja la configuración
+        class ConfigManager {
+            constructor() {
+                this.isInThousands = false; // Por defecto en unidades
+                this.onRecalculate = null; // Callback para recalcular
+                this.setupConfigUI();
+                this.setupUnitsToggle();
+            }
+
+            setupConfigUI() {
+                const grid = document.getElementById('configGrid');
+                CONFIG.defaultAdjustments.forEach((item, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'config-item';
+                    div.innerHTML = `
+                        <label>${item.label}</label>
+                        <input type="number" id="adj_${index}" value="${this.convertToDisplayValue(item.value)}">
+                    `;
+                    grid.appendChild(div);
+                });
+
+                // Añadir botón de recalcular
+                this.addRecalculateButton(grid);
+            }
+
+            addRecalculateButton(grid) {
+                const recalculateDiv = document.createElement('div');
+                recalculateDiv.className = 'recalculate-section';
+                recalculateDiv.innerHTML = `
+                    <button class="btn btn-recalculate" id="recalculateBtn" disabled>
+                         Recalcular
+                    </button>
+                `;
+                grid.appendChild(recalculateDiv);
+
+                // Configurar el event listener
+                const recalculateBtn = document.getElementById('recalculateBtn');
+                recalculateBtn.addEventListener('click', () => {
+                    if (this.onRecalculate && !recalculateBtn.disabled) {
+                        this.onRecalculate();
+                    }
+                });
+
+                return recalculateBtn;
+            }
+
+            setupUnitsToggle() {
+                const milesBtn = document.getElementById('milesBtn');
+                const unidadesBtn = document.getElementById('unidadesBtn');
+
+                milesBtn.addEventListener('click', () => {
+                    if (!this.isInThousands) {
+                        this.toggleUnits(true);
+                        this.updateButtonStates(milesBtn, unidadesBtn);
+                    }
+                });
+
+                unidadesBtn.addEventListener('click', () => {
+                    if (this.isInThousands) {
+                        this.toggleUnits(false);
+                        this.updateButtonStates(unidadesBtn, milesBtn);
+                    }
+                });
+            }
+
+            updateButtonStates(activeBtn, inactiveBtn) {
+                activeBtn.classList.add('active');
+                inactiveBtn.classList.remove('active');
+            }
+
+            toggleUnits(toThousands) {
+                CONFIG.defaultAdjustments.forEach((item, index) => {
+                    const input = document.getElementById(`adj_${index}`);
+                    const currentValue = parseInt(input.value) || 0;
+                    
+                    if (toThousands && !this.isInThousands) {
+                        // Convertir de unidades a miles
+                        input.value = Math.round(currentValue / 1000);
+                    } else if (!toThousands && this.isInThousands) {
+                        // Convertir de miles a unidades
+                        input.value = currentValue * 1000;
+                    }
+                });
+                
+                this.isInThousands = toThousands;
+            }
+
+            convertToDisplayValue(value) {
+                return this.isInThousands ? Math.round(value / 1000) : value;
+            }
+
+            getAdjustmentArray() {
+                return CONFIG.defaultAdjustments.map((item, index) => {
+                    const input = document.getElementById(`adj_${index}`);
+                    const inputValue = parseInt(input.value) || 0;
+                    
+                    // Si está en miles, multiplicar por 1000 para obtener el valor real
+                    return inputValue;
+                });
+            }
+
+            setRecalculateCallback(callback) {
+                this.onRecalculate = callback;
+            }
+        }
+
+        // Clase principal - Orquestador (Single Responsibility: coordinar)
+        class RCISApp {
+            constructor() {
+                this.ui = new UIManager();
+                this.configManager = new ConfigManager();
+                this.processedData = null;
+                this.originalFileName = '';
+                this.currentWorkbook = null; // Almacenar el workbook para recalcular
+                this.setupEventListeners();
+                this.setupRecalculate();
+            }
+
+            setupEventListeners() {
+                // Drag and Drop
+                this.ui.elements.uploadArea.addEventListener('dragover', e => {
+                    e.preventDefault();
+                    this.ui.elements.uploadArea.classList.add('dragover');
+                });
+
+                this.ui.elements.uploadArea.addEventListener('dragleave', () => {
+                    this.ui.elements.uploadArea.classList.remove('dragover');
+                });
+
+                this.ui.elements.uploadArea.addEventListener('drop', e => {
+                    e.preventDefault();
+                    this.ui.elements.uploadArea.classList.remove('dragover');
+                    if (e.dataTransfer.files.length > 0) {
+                        this.handleFile(e.dataTransfer.files[0]);
+                    }
+                });
+
+                this.ui.elements.uploadArea.addEventListener('click', () => {
+                    this.ui.elements.fileInput.click();
+                });
+
+                this.ui.elements.fileInput.addEventListener('change', e => {
+                    if (e.target.files.length > 0) {
+                        this.handleFile(e.target.files[0]);
+                    }
+                });
+
+                this.ui.elements.downloadBtn.addEventListener('click', () => {
+                    this.downloadFile();
+                });
+            }
+
+            setupRecalculate() {
+                this.configManager.setRecalculateCallback(() => {
+                    this.recalculateData();
+                });
+                
+                // Obtener referencia al botón de recalcular para el UIManager
+                this.ui.elements.recalculateBtn = document.getElementById('recalculateBtn');
+            }
+
+            async handleFile(file) {
+                try {
+                    FileValidator.validate(file);
+                    this.originalFileName = file.name;
+                    this.ui.showLoading();
+
+                    const arrayBuffer = await this.readFile(file);
+                    const workbook = XLSX.read(new Uint8Array(arrayBuffer), { type: 'array' });
+                    
+                    // Almacenar el workbook para futuros recálculos
+                    this.currentWorkbook = workbook;
+                    
+                    const adjustmentArray = this.configManager.getAdjustmentArray();
+                    const processor = new DataProcessor(adjustmentArray);
+                    const result = processor.process(workbook);
+
+                    this.processedData = result;
+                    const info = `<strong> Archivo procesado:</strong> ${file.name}<br><strong>Hoja:</strong> ${CONFIG.targetSheet}`;
+                    
+                    this.ui.hideLoading();
+                    this.ui.showResults(result, info);
+                    this.ui.enableRecalculateButton(); // Habilitar el botón de recalcular
+
+                } catch (error) {
+                    this.ui.showError(error.message);
+                    this.ui.disableRecalculateButton(); // Deshabilitar el botón si hay error
+                }
+            }
+
+            recalculateData() {
+                if (!this.currentWorkbook) {
+                    alert('No hay datos cargados para recalcular');
+                    return;
+                }
+
+                try {
+                    this.ui.showLoading();
+                    
+                    // Obtener los nuevos valores de ajuste
+                    const adjustmentArray = this.configManager.getAdjustmentArray();
+                    const processor = new DataProcessor(adjustmentArray);
+                    const result = processor.process(this.currentWorkbook);
+
+                    this.processedData = result;
+                    const info = `<strong> Archivo procesado:</strong> ${this.originalFileName}<br><strong>Hoja:</strong> ${CONFIG.targetSheet}<br><strong> Recalculado</strong>`;
+                    
+                    this.ui.hideLoading();
+                    this.ui.showResults(result, info);
+
+                } catch (error) {
+                    this.ui.showError('Error al recalcular: ' + error.message);
+                }
+            }
+
+            readFile(file) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = e => resolve(e.target.result);
+                    reader.onerror = () => reject(new Error('Error al leer el archivo'));
+                    reader.readAsArrayBuffer(file);
+                });
+            }
+
+            downloadFile() {
+                if (!this.processedData) {
+                    alert('No hay datos para descargar');
+                    return;
+                }
+
+                try {
+                    FileDownloader.download(this.processedData, this.originalFileName);
+                } catch (error) {
+                    alert(error.message);
+                }
+            }
         }
 
         // ============================================================================
         // INICIALIZACIÓN
         // ============================================================================
-
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('🚀 Inicializando RCIS Processor...');
-            new RCISProcessor();
-            console.log('✅ RCIS Processor inicializado correctamente');
+            new RCISApp();
         });
     </script>
 </body>
